@@ -198,7 +198,6 @@ double getProbValue(ErlangDistribution lists[],int i,int k,int size){
 			}			
 		}
 
-
         // initial all APs 
         ErlangDistribution er[size];
 
@@ -339,12 +338,28 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 	
-	
+	int tlmin =-1;
+	int tlmax = -1;
+	cout << "Enter tl_min :";
+	cin >> tlmin;
+	cout << "Enter tl_max :";
+	cin >> tlmax;
+
+	cout << "tl["<< tlmin <<","<< tlmax<<"]" << endl;
+
+	vector<double> tlb;
+	for(double x=tlmin;x<=tlmax;x+=0.25)
+	{
+		tlb.push_back(x);
+	}
+
+	double ntl[tlb.size()]={0};
+
 	/* initial variable */
 	int NSimulation = atoi(argv[1]);
 	int N_AP = atoi(argv[2]);
 	int K=atoi(argv[3]);
-	double t_benchmark = 7;
+	double t_benchmark = 2.5;
 	int count_t_benchmark = 0;
 
 	int wifi_para = (argc-1)-3;
@@ -419,10 +434,13 @@ int main(int argc, char *argv[]) {
 		count[minindex]+=1; 
 		sum_tl+=t[minindex];
 
-		if(t[minindex]<t_benchmark)
+		for(int m=0;m<tlb.size();m++)
 		{
-			count_t_benchmark++;
+			if(t[minindex]<tlb[m]){
+				ntl[m]++;
+			}
 		}
+
 		//statfile << stat <<"\n"; 
 	}
 
@@ -466,11 +484,28 @@ int main(int argc, char *argv[]) {
     cout << "sum of P = " << psum << endl;
 	cout << "==============================" <<endl;
 
-	double P_tl = ((double)count_t_benchmark/(double)NSimulation);
+	/* double P_tl = ((double)count_t_benchmark/(double)NSimulation);
 	//double 
 	cout << "N[tl<"<<t_benchmark<<"]=" << count_t_benchmark <<endl;
 	cout << "P[tl<"<<t_benchmark<<"]=" << P_tl<<endl;
-	cout << "P[tl>="<<t_benchmark<<"]=" << 1-P_tl<<endl;
+	cout << "P[tl>="<<t_benchmark<<"]=" << 1-P_tl<<endl; */
+
+	cout << "n_range = " << tlb.size() <<endl;
+	double P_tl[tlb.size()]={0};
+	for(int i=0;i<tlb.size();i++)
+	{
+		P_tl[i] = (double)ntl[i]/(double)NSimulation;
+	}
+	for(int i=0;i<tlb.size();i++)
+	{
+		cout <<fixed<<setprecision(2)<< "P[tl<"<<tlb[i]<<"]=";
+		cout <<fixed<<setprecision(8)<<P_tl[i]<<endl;
+	}
+	for(int i=0;i<tlb.size();i++)
+	{
+		cout <<fixed<<setprecision(2)<<tlb[i]<<",";
+		cout <<fixed<<setprecision(8)<<P_tl[i]<<endl;
+	}
 
     string content;
 	content = to_string(NSimulation)+","+to_string(N_AP)+","+to_string(K);
