@@ -1,9 +1,9 @@
 clear all
 
 %% Parameters
-k = 3; % #Zi
-m = 10; % size of alpha
-lambda = [5 4 3 2 1];
+k = 3; % #Zi due to array problem k cannot be assigned with high value may be we can swap k and ni eg., k=5 ni=3 we can use k=3 m=15 rather than k=5 m=15
+m = 21; % size of alpha
+lambda = [15 12 9 6 3];
 
 %% Initialize alpha
 a = [ones(k,1) zeros(k,m-1)];
@@ -13,7 +13,7 @@ a = [ones(k,1) zeros(k,m-1)];
 
 Ti = []; % 3D matrix
 
-for i = 1:k
+for i = k:-1:1
     
    Ti(:,:,i) = lambda(i) * ( tril(triu(ones(m)),1)+eye(m)*(-2) );
    
