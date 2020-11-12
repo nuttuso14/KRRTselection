@@ -7,9 +7,12 @@
 #include <sstream>
 #include <iomanip> // setprecision
 #include <vector>
+#include <random>
 
 using namespace std;
 
+default_random_engine eng{static_cast<long unsigned int>(time(0))};
+uniform_real_distribution<double> distribution(0.0,1.0);
 
 /* run this program using the console pauser or add your own getch, system("pause") or input loop */
 
@@ -17,11 +20,15 @@ class ErlangDistribution {
 	int shape;
 	double lamda;
 	private:
-		double calculatePI(){
+		double calculatePI()
+		{
 			double U = 1;
+			double randomNum = 0;
 		//	cout <<"sss:" <<shape <<"\n";
-        	for(int i=0;i<shape;i++){
-            	U*=((double) rand() / (RAND_MAX));
+        	for(int i=0;i<shape;i++)
+			{
+				randomNum = distribution(eng);
+            	U*=(randomNum);
             //	cout << "PI"<< U <<"\n";
         	}
         //	free(&t);
