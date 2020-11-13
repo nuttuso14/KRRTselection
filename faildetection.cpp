@@ -78,7 +78,66 @@ class RandomNumber{
     }
 
 };
-void sendingPacket(double n_sim, double meanTf,double meanTc,double ploss,int R, int L)
+
+double mathCondition(int j, int R, double ploss)
+{
+
+    double sumTheta = 0;
+    double theta = 0;
+    for(int i=0;i<=j;i++)
+    {
+        theta = 0;
+        if(i<R)
+        {
+            theta = 0;
+        }
+        else if(i==R)
+        {
+            theta = pow(ploss,R);
+        }
+        else
+        {
+            cout << j << endl;
+            double sumsubtheta = 0;
+            cout << "===========call recursive" << endl;
+            for(int x=0;x<=i-R-1;x++)
+            {
+                cout << x <<endl;
+                sumsubtheta += mathCondition(x,R,ploss);
+
+            }
+            cout << "===========end recursive" << endl;
+            theta = (1 - sumsubtheta)*(1-ploss)*pow(ploss,R);
+        }
+        sumTheta+=theta;
+    }
+    
+
+    return (1-sumTheta);
+}
+
+double MathCaluation(int N_packet, double miu, double lambdaC, double ploss, int R)
+{
+    double sumbeta = 0;
+    double beta = 0;
+    double thethabar =0;
+    double fraction =0;
+    cout << "mu=" << miu <<endl;
+    cout << "lambdaC=" << lambdaC <<endl;
+    for(int n=0;n<=N_packet;n++)
+    {   
+        cout << "n=" << n << endl;
+        thethabar =  mathCondition(n,R,ploss);
+        fraction = (miu*pow(lambdaC,n))/pow((lambdaC+miu),n+1);
+        sumbeta +=(thethabar*fraction);
+        cout << "thethabar=" << thethabar << endl;
+        cout << "fraction=" << fraction << endl;
+    }
+    beta = 1 - sumbeta;
+    return beta;
+}
+
+void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R, int L)
 {
     RandomNumber r1(meanTf),r2(meanTc),choose;
     double pi[2];
@@ -230,24 +289,34 @@ void sendingPacket(double n_sim, double meanTf,double meanTc,double ploss,int R,
         sumn += ni[i];
         //cout << "ni=" << ni[i] << endl;
     }
-    if(1)
-    {
-        cout << "N[True failure detected]=" << NtrueDetect <<endl;
-        cout << "N[False failure detected]=" << NfailureDetect <<endl;  
-        cout << "P[True failure detected] = " << NtrueDetect/n_sim <<endl;
-        cout << "P[False failure detected] = " << NfailureDetect/n_sim <<endl;
-        cout << "Average  sending Packet E[n] : " << (double)sumn/(double)ni.size() <<endl;
-    }
+   
+    double PtrueSim = NtrueDetect/n_sim;
+    double PfalseSim = NfailureDetect/n_sim;
+    double avgPacket = (double)sumn/(double)ni.size();
+
+    cout << "=============== Simulation ================" << endl;
+    cout << "N[True failure detected]=" << NtrueDetect <<endl;
+    cout << "N[False failure detected]=" << NfailureDetect <<endl;  
+    cout << "P[True failure detected] = " << PtrueSim <<endl;
+    cout << "P[False failure detected] = " << PfalseSim <<endl;
+    cout << "Average  sending Packet E[n] : " << (double)sumn/(double)ni.size() <<endl;
+    
+    cout << "================= Math=====================" << endl;
+    // calculate beta
+    int Npacket = avgPacket;
+    double beta = MathCaluation(Npacket,r1.getRate(),r2.getRate(),ploss,R);
+    cout << "P[False failure detected] = " << beta <<endl; 
+    //cout << "N=" << Npacket << endl;
     
 }
 int main(int argc, char *argv[]) {
     
     int N_sim = 100000;
 
-    double tf = 500;
-    double tc = 50;
+    double tf = 300;
+    double tc = 100;
     double ploss = 0.1;
-    int round = 2;
+    int round = 3;
     int attempt = 1;
     
 
