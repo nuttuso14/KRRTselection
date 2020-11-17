@@ -155,6 +155,7 @@ void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R,
     double pi[2];
     double tf=0,tc=0;
     int countR=0,countL=0;
+    int thethatrack[3] = {0};
 
     vector<int> ni;
     pi[0] = ploss;
@@ -246,6 +247,21 @@ void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R,
                             }
                             //cout << "m=" << m << " R=" << R << endl;
                             //cout << m << endl;
+                            if((m+1)<R)
+                            {
+                               // cout << "hello1" <<endl;
+                                thethatrack[0]++;
+                            }
+                            else if((m+1)==R)
+                            {
+                                //cout << "hello2" <<endl;
+                                thethatrack[1]++;
+                            }
+                            else
+                            {
+                                //cout << "hello3" <<endl;
+                                thethatrack[2]++;
+                            }
 
                             NfailureDetect++;
                             faildetect++;
@@ -310,6 +326,9 @@ void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R,
     double PtrueSim = NtrueDetect/n_sim;
     double PfalseSim = NfailureDetect/n_sim;
     double avgPacket = (double)sumn/(double)ni.size();
+    double casethe1 = (double)thethatrack[0]/(double)n_sim; 
+    double casethe2 = (double)thethatrack[1]/(double)n_sim; 
+    double casethe3 = (double)thethatrack[2]/(double)n_sim; 
 
     cout << "=============== Simulation ================" << endl;
     cout << "Maximum packet sent =" << maxN << endl;
@@ -335,9 +354,9 @@ int main(int argc, char *argv[]) {
     
     int N_sim = 500000;
 
-    double tf = 750;
+    double tf = 500;
     double tc = 50;
-    double ploss = 0.1251;
+    double ploss = 0.25;
     int round = 3;
     int attempt = 1;
     cout << " K-Echo with False Failure detection " <<endl;

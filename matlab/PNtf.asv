@@ -1,0 +1,8 @@
+Tc = 100;
+lambdaC = 1/Tc;
+tf = 500;
+n=4;
+
+P = (((lambdaC*tf)^n)/factorial(n))*exp(-1*(lambdaC*tf));
+
+test = 
