@@ -15,11 +15,19 @@ K-RRT.o:	K-RRT.cpp
 
 faildetection: faildetection.o
 	$(CC) -o $@ $? 
-	$(CC) -o drawFigure drawFigure.o 
+	$(CC) -o faildetection faildetection.o 
 
 faildetection.o:	faildetection.cpp
 	$(CC) $(STANDARD) $(CFLAGS) -o $@ faildetection.cpp 
 	$(CC) $(STANDARD) $(CFLAGS) -o faildetection.o faildetection.cpp 
+
+faildetection_noRecursive: faildetection_noRecursive.o
+	$(CC) -o $@ $? 
+	$(CC) -o faildetection_noRecursive faildetection_noRecursive.o 
+
+faildetection_noRecursive.o:	faildetection_noRecursive.cpp
+	$(CC) $(STANDARD) $(CFLAGS) -o $@ faildetection_noRecursive.cpp 
+	$(CC) $(STANDARD) $(CFLAGS) -o faildetection_noRecursive.o faildetection_noRecursive.cpp 
 
 clean:
 	rm *.o *.txt K-RRT drawFigure faildetection

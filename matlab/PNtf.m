@@ -7,3 +7,5 @@ n=10;
 P = (((lambdaC*tf)^n)/factorial(n))*exp(-1*(lambdaC*tf))
 
 test = (mu*lambdaC^n)/((mu+lambdaC)^(n+1))
+
+Pc = 0.00000005^500000

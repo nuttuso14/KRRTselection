@@ -85,6 +85,7 @@ double mathCondition(int j, int R, double ploss)
     double sumTheta = 0;
     double theta = 0;
     double arrayThetha[j];
+    vector<double> thethalist;
 
     for(int i=0;i<=j;i++)
     {
@@ -93,11 +94,15 @@ double mathCondition(int j, int R, double ploss)
         {
             theta = 0;
             arrayThetha[i]= theta ;
+            //thethalist.push_back(theta);
         }
         else if(i==R)
         {
             theta = pow(ploss,R);
             arrayThetha[i]= theta ;
+            //thethalist.push_back(theta);
+            
+            
         }
         else
         {
@@ -108,11 +113,13 @@ double mathCondition(int j, int R, double ploss)
             {
                // cout << x <<endl;
                 sumsubtheta += arrayThetha[x];
+                //sumsubtheta += thethalist[x];
 
             }
            // cout << "===========end recursive" << endl;
             theta = (1 - sumsubtheta)*(1-ploss)*pow(ploss,R);
             arrayThetha[i] = theta;
+            //thethalist.push_back(theta);
         }
         sumTheta+=theta;
     }
@@ -123,8 +130,8 @@ double mathCondition(int j, int R, double ploss)
 
 double MathCaluation(int N_packet, double miu, double lambdaC, double ploss, int R)
 {
-    double sumbeta = 0;
-    double beta = 0;
+    long double sumbeta = 0;
+    long double beta = 0;
     long double thethabar =0;
     long double fraction =0;
     long double PrNgUp = -1;
@@ -133,16 +140,25 @@ double MathCaluation(int N_packet, double miu, double lambdaC, double ploss, int
     //cout << "lambdaC=" << lambdaC <<endl;
     for(int n=0;n<=N_packet;n++)
     {   
-        //cout << "n=" << n << endl;
+        cout << "calucate at Packet :" << n << endl;
         thethabar =  mathCondition(n,R,ploss);
-        PrNgUp = (miu*pow(lambdaC,n));
-        PrNgdown = pow((lambdaC+miu),n+1);
+        PrNgUp = ((long double)miu*pow((long double)lambdaC,(long double)n));
+        PrNgdown = pow(((long double)lambdaC+(long double)miu),(long double)(n+1));
         fraction = (PrNgUp)/PrNgdown;
+        //cout << "PrNgUp=" << PrNgUp << endl;
+        //cout << "PrNgdown=" << PrNgdown << endl;
+        //cout << "thethabar=" << thethabar << endl;
         //cout << "fraction=" << fraction << endl;
         //cout << " is Nan ? :" << isnan(fraction) << endl;
+        if(isnan(fraction))
+        {
+            break;
+        }
         fraction = (isnan(fraction))?0:fraction;
+        double eee = thethabar*fraction;
         sumbeta +=(thethabar*fraction);
-        //cout << "thethabar=" << thethabar << endl;
+        //cout << "thethabar*fraction =" << eee << endl;
+        //cout << "sum_beta=" << sumbeta <<endl;
         //cout << "after fraction=" << fraction << endl;
     }
     beta = 1 - sumbeta;
@@ -166,6 +182,7 @@ void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R,
     for(int i =0; i<n_sim;i++)
     {
         //cout << r1.getRandomExpo() <<endl;
+        cout << "Simulation at round " << (i+1) << endl; 
         countR=0;
         faildetect = 0;
         //tf = r1.getRandomExpo();
@@ -315,6 +332,7 @@ void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R,
     
     for(int i=0;i<ni.size();i++)
     {
+        
         sumn += ni[i];
         if(ni[i]>=maxN)
         {
@@ -331,6 +349,8 @@ void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R,
     double casethe3 = (double)thethatrack[2]/(double)n_sim; 
 
     cout << "=============== Simulation ================" << endl;
+    //long double xx = 1.18973e+307;
+    //cout << "long double xx :" << xx << endl; 
     cout << "Maximum packet sent =" << maxN << endl;
     cout << "N[True failure detected]=" << NtrueDetect <<endl;
     cout << "N[False failure detected]=" << NfailureDetect <<endl;  
@@ -352,11 +372,11 @@ void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R,
 }
 int main(int argc, char *argv[]) {
     
-    int N_sim = 500000;
+    int N_sim = 100000;
 
-    double tf = 500;
-    double tc = 50;
-    double ploss = 0.25;
+    double tf = 5000;
+    double tc = 10;
+    double ploss = 0.01;
     int round = 3;
     int attempt = 1;
     cout << " K-Echo with False Failure detection " <<endl;
