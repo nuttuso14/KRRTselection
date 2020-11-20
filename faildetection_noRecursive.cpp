@@ -152,9 +152,11 @@ double MathCaluation(int N_packet, double miu, double lambdaC, double ploss, int
         //cout << " is Nan ? :" << isnan(fraction) << endl;
         if(isnan(fraction))
         {
+            fraction = 0;
+            sumbeta +=(thethabar*fraction);
             break;
         }
-        fraction = (isnan(fraction))?0:fraction;
+        //fraction = (isnan(fraction))?0:fraction;
         double eee = thethabar*fraction;
         sumbeta +=(thethabar*fraction);
         //cout << "thethabar*fraction =" << eee << endl;
@@ -365,18 +367,30 @@ void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R,
     int Npacket = avgPacket;
     double beta = 0;
     beta = MathCaluation(maxN,r1.getRate(),r2.getRate(),ploss,R);
+    double pTrueMath = 1-beta;
     cout << "P[True Failure detected] =" << 1-beta <<endl;
     cout << "P[False failure detected] = " << beta <<endl; 
     //cout << "N=" << Npacket << endl;
+
+    string content;
+	content = to_string(n_sim)+","+to_string(meanTf)+","+to_string(meanTc) + "," + to_string(ploss)+ "," + to_string(R) + "," + to_string(L); 
+    
+    content += "," + to_string(maxN) + "," + to_string(PtrueSim) + "," + to_string(PfalseSim) + "," + to_string(pTrueMath) + "," + to_string(beta) ;
+	
+
+	ofstream outfile;
+    outfile.open("falseFailure.txt",ios_base::app);
+    outfile << content <<"\n"; 
+    outfile.close();
     
 }
 int main(int argc, char *argv[]) {
     
     int N_sim = 100000;
 
-    double tf = 5000;
-    double tc = 10;
-    double ploss = 0.01;
+    double tf = 86400;
+    double tc = 240;
+    double ploss = 0.075;
     int round = 3;
     int attempt = 1;
     cout << " K-Echo with False Failure detection " <<endl;

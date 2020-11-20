@@ -85,6 +85,7 @@ double mathCondition(int j, int R, double ploss)
     double sumTheta = 0;
     double theta = 0;
     double arrayThetha[j];
+    vector<double> thethalist;
 
     for(int i=0;i<=j;i++)
     {
@@ -93,11 +94,15 @@ double mathCondition(int j, int R, double ploss)
         {
             theta = 0;
             arrayThetha[i]= theta ;
+            //thethalist.push_back(theta);
         }
         else if(i==R)
         {
             theta = pow(ploss,R);
             arrayThetha[i]= theta ;
+            //thethalist.push_back(theta);
+            
+            
         }
         else
         {
@@ -108,11 +113,13 @@ double mathCondition(int j, int R, double ploss)
             {
                // cout << x <<endl;
                 sumsubtheta += arrayThetha[x];
+                //sumsubtheta += thethalist[x];
 
             }
            // cout << "===========end recursive" << endl;
             theta = (1 - sumsubtheta)*(1-ploss)*pow(ploss,R);
             arrayThetha[i] = theta;
+            //thethalist.push_back(theta);
         }
         sumTheta+=theta;
     }
@@ -123,8 +130,8 @@ double mathCondition(int j, int R, double ploss)
 
 double MathCaluation(int N_packet, double miu, double lambdaC, double ploss, int R)
 {
-    double sumbeta = 0;
-    double beta = 0;
+    long double sumbeta = 0;
+    long double beta = 0;
     long double thethabar =0;
     long double fraction =0;
     long double PrNgUp = -1;
@@ -133,16 +140,27 @@ double MathCaluation(int N_packet, double miu, double lambdaC, double ploss, int
     //cout << "lambdaC=" << lambdaC <<endl;
     for(int n=0;n<=N_packet;n++)
     {   
-        //cout << "n=" << n << endl;
+        cout << "calucate at Packet :" << n << endl;
         thethabar =  mathCondition(n,R,ploss);
-        PrNgUp = (miu*pow(lambdaC,n));
-        PrNgdown = pow((lambdaC+miu),n+1);
+        PrNgUp = ((long double)miu*pow((long double)lambdaC,(long double)n));
+        PrNgdown = pow(((long double)lambdaC+(long double)miu),(long double)(n+1));
         fraction = (PrNgUp)/PrNgdown;
+        //cout << "PrNgUp=" << PrNgUp << endl;
+        //cout << "PrNgdown=" << PrNgdown << endl;
+        //cout << "thethabar=" << thethabar << endl;
         //cout << "fraction=" << fraction << endl;
         //cout << " is Nan ? :" << isnan(fraction) << endl;
-        fraction = (isnan(fraction))?0:fraction;
+        if(isnan(fraction))
+        {
+            fraction = 0;
+            sumbeta +=(thethabar*fraction);
+            break;
+        }
+        //fraction = (isnan(fraction))?0:fraction;
+        double eee = thethabar*fraction;
         sumbeta +=(thethabar*fraction);
-        //cout << "thethabar=" << thethabar << endl;
+        //cout << "thethabar*fraction =" << eee << endl;
+        //cout << "sum_beta=" << sumbeta <<endl;
         //cout << "after fraction=" << fraction << endl;
     }
     beta = 1 - sumbeta;
@@ -155,6 +173,7 @@ void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R,
     double pi[2];
     double tf=0,tc=0;
     int countR=0,countL=0;
+    int thethatrack[3] = {0};
 
     vector<int> ni;
     pi[0] = ploss;
@@ -165,6 +184,7 @@ void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R,
     for(int i =0; i<n_sim;i++)
     {
         //cout << r1.getRandomExpo() <<endl;
+        cout << "Simulation at round " << (i+1) << endl; 
         countR=0;
         faildetect = 0;
         //tf = r1.getRandomExpo();
@@ -246,6 +266,21 @@ void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R,
                             }
                             //cout << "m=" << m << " R=" << R << endl;
                             //cout << m << endl;
+                            if((m+1)<R)
+                            {
+                               // cout << "hello1" <<endl;
+                                thethatrack[0]++;
+                            }
+                            else if((m+1)==R)
+                            {
+                                //cout << "hello2" <<endl;
+                                thethatrack[1]++;
+                            }
+                            else
+                            {
+                                //cout << "hello3" <<endl;
+                                thethatrack[2]++;
+                            }
 
                             NfailureDetect++;
                             faildetect++;
@@ -299,6 +334,7 @@ void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R,
     
     for(int i=0;i<ni.size();i++)
     {
+        
         sumn += ni[i];
         if(ni[i]>=maxN)
         {
@@ -310,8 +346,13 @@ void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R,
     double PtrueSim = NtrueDetect/n_sim;
     double PfalseSim = NfailureDetect/n_sim;
     double avgPacket = (double)sumn/(double)ni.size();
+    double casethe1 = (double)thethatrack[0]/(double)n_sim; 
+    double casethe2 = (double)thethatrack[1]/(double)n_sim; 
+    double casethe3 = (double)thethatrack[2]/(double)n_sim; 
 
     cout << "=============== Simulation ================" << endl;
+    //long double xx = 1.18973e+307;
+    //cout << "long double xx :" << xx << endl; 
     cout << "Maximum packet sent =" << maxN << endl;
     cout << "N[True failure detected]=" << NtrueDetect <<endl;
     cout << "N[False failure detected]=" << NfailureDetect <<endl;  
@@ -326,20 +367,40 @@ void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R,
     int Npacket = avgPacket;
     double beta = 0;
     beta = MathCaluation(maxN,r1.getRate(),r2.getRate(),ploss,R);
+    double pTrueMath = 1-beta;
     cout << "P[True Failure detected] =" << 1-beta <<endl;
     cout << "P[False failure detected] = " << beta <<endl; 
     //cout << "N=" << Npacket << endl;
+
+    string content;
+	content = to_string(n_sim)+","+to_string(meanTf)+","+to_string(meanTc) + "," + to_string(ploss)+ "," + to_string(R) + "," + to_string(L); 
+    
+    content += "," + to_string(maxN) + "," + to_string(PtrueSim) + "," + to_string(PfalseSim) + "," + to_string(pTrueMath) + "," + to_string(beta) ;
+	
+
+	ofstream outfile;
+    outfile.open("falseFailure.txt",ios_base::app);
+    outfile << content <<"\n"; 
+    outfile.close();
     
 }
 int main(int argc, char *argv[]) {
     
-    int N_sim = 500000;
+    
 
-    double tf = 750;
-    double tc = 50;
-    double ploss = 0.1251;
-    int round = 3;
-    int attempt = 1;
+    if (argc != 7) {
+		cerr << "Usage: " << argv[0] << " <SIM_ROUND> " <<" <Tf>" << " <Tc> " << " <P_LOSS> "  	<< " <R> " << " <L> " << endl;
+		return 1;
+	}
+
+    int N_sim = atof(argv[1]);
+    double tf = atof(argv[2]);
+    double tc = atof(argv[3]);
+    double ploss = atof(argv[4]);
+    int round = atoi(argv[5]);
+    int attempt = atoi(argv[6]);
+
+
     cout << " K-Echo with False Failure detection " <<endl;
     cout << "============ Settings ==========" << endl;
     cout << "tf =" << tf <<endl;
