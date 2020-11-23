@@ -128,6 +128,58 @@ double mathCondition(int j, int R, double ploss)
     return (1-sumTheta);
 }
 
+long double calBigPRNtf(int bigN, int nAtfirstoverflow, double miu, double lambdaC)
+{
+    //cout << "bigN =" <<bigN << " : nAtfirstoverflow =" << nAtfirstoverflow << endl; 
+    vector<int> nMultiple;
+    int NbeforeOverflow = nAtfirstoverflow-1;
+    if(bigN == nAtfirstoverflow)
+    {
+        nMultiple.push_back(NbeforeOverflow);
+        nMultiple.push_back(bigN-NbeforeOverflow);
+    }
+    else
+    {
+        do
+        {   
+            if(bigN>=nAtfirstoverflow)
+            {
+                 nMultiple.push_back(NbeforeOverflow);
+                 bigN-=NbeforeOverflow;
+            }
+            else // final element
+            {
+                  nMultiple.push_back(bigN);
+                  bigN=0;
+            }
+
+        }while(bigN>0);
+    }
+    long double sumPr = 1;
+    long double PrNgUp = 0;
+    long double PrNgdown = 0;
+    long double fraction = -1;
+
+    for(int n=0;n<nMultiple.size();n++)
+    {
+        //cout << "n in overlow =" << n << "Value :" << nMultiple[n] <<endl;
+        int k = nMultiple[n];
+        PrNgUp = ((long double)miu*pow((long double)lambdaC,(long double)k));
+        PrNgdown = pow(((long double)lambdaC+(long double)miu),(long double)(k+1));
+        fraction = PrNgUp/PrNgdown;
+        //cout << "PrNgUp=" << PrNgUp << endl;
+        //cout << "PrNgdown=" << PrNgdown << endl;
+
+        sumPr *= fraction;
+    }
+    
+
+    //cout << "sumPR=" << sumPr << endl;
+
+    return sumPr;
+
+}
+
 double MathCaluation(int N_packet, double miu, double lambdaC, double ploss, int R)
 {
     long double sumbeta = 0;
@@ -136,29 +188,54 @@ double MathCaluation(int N_packet, double miu, double lambdaC, double ploss, int
     long double fraction =0;
     long double PrNgUp = -1;
     long double PrNgdown = -1;
+    int nOverflow = 0;
+    int nAtfirstoverflow = -1;
    // cout << "mu=" << miu <<endl;
     //cout << "lambdaC=" << lambdaC <<endl;
     for(int n=0;n<=N_packet;n++)
     {   
-        cout << "calucate at Packet :" << n << endl;
+        cout << "calucate at Packet :" << n << "/" << N_packet << endl;
         thethabar =  mathCondition(n,R,ploss);
         PrNgUp = ((long double)miu*pow((long double)lambdaC,(long double)n));
         PrNgdown = pow(((long double)lambdaC+(long double)miu),(long double)(n+1));
-        fraction = (PrNgUp)/PrNgdown;
+        if(PrNgUp==(long double)0 || PrNgdown==(long double)0) 
+        {
+            if(nOverflow==0)
+            {
+                nAtfirstoverflow = n;
+            }
+            fraction = calBigPRNtf(n,nAtfirstoverflow,miu,lambdaC); 
+            nOverflow++;
+        }
+        else
+        {
+            fraction = (PrNgUp)/PrNgdown;
+        }
+        
         //cout << "PrNgUp=" << PrNgUp << endl;
         //cout << "PrNgdown=" << PrNgdown << endl;
         //cout << "thethabar=" << thethabar << endl;
         //cout << "fraction=" << fraction << endl;
         //cout << " is Nan ? :" << isnan(fraction) << endl;
-        if(isnan(fraction))
+
+        /*if(isnan(fraction))
         {
             fraction = 0;
             sumbeta +=(thethabar*fraction);
             break;
-        }
+        }*/
         //fraction = (isnan(fraction))?0:fraction;
-        double eee = thethabar*fraction;
+        //double eee = thethabar*fraction;
         sumbeta +=(thethabar*fraction);
+
+        //if(fraction<(long double)0.0000000000000000001)
+        /*if(fraction<(long double)0.000000000001)
+        {
+            // very low that it can be overlooked
+            cout << "hello Man!" <<endl;
+            break;
+        }*/
+
         //cout << "thethabar*fraction =" << eee << endl;
         //cout << "sum_beta=" << sumbeta <<endl;
         //cout << "after fraction=" << fraction << endl;
@@ -166,6 +243,7 @@ double MathCaluation(int N_packet, double miu, double lambdaC, double ploss, int
     beta = 1 - sumbeta;
     return beta;
 }
+
 
 void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R, int L)
 {
@@ -366,7 +444,7 @@ void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R,
     // calculate beta
     int Npacket = avgPacket;
     double beta = 0;
-    beta = MathCaluation(maxN,r1.getRate(),r2.getRate(),ploss,R);
+    beta = MathCaluation(Npacket*20,r1.getRate(),r2.getRate(),ploss,R);
     double pTrueMath = 1-beta;
     cout << "P[True Failure detected] =" << 1-beta <<endl;
     cout << "P[False failure detected] = " << beta <<endl; 

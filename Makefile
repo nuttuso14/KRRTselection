@@ -3,7 +3,7 @@ CFLAGS = -g -c
 STANDARD = -std=c++11
 
 
-all: K-RRT faildetection
+all: K-RRT faildetection faildetection_noRecursive faildetection_validate
 
 K-RRT: K-RRT.o
 	$(CC) -o $@ $? 
@@ -29,6 +29,14 @@ faildetection_noRecursive.o:	faildetection_noRecursive.cpp
 	$(CC) $(STANDARD) $(CFLAGS) -o $@ faildetection_noRecursive.cpp 
 	$(CC) $(STANDARD) $(CFLAGS) -o faildetection_noRecursive.o faildetection_noRecursive.cpp 
 
+faildetection_validate: faildetection_validate.o
+	$(CC) -o $@ $? 
+	$(CC) -o faildetection_validate faildetection_validate.o 
+
+faildetection_validate.o:	faildetection_validate.cpp
+	$(CC) $(STANDARD) $(CFLAGS) -o $@ faildetection_validate.cpp 
+	$(CC) $(STANDARD) $(CFLAGS) -o faildetection_validate.o faildetection_validate.cpp 
+
 clean:
-	rm *.o *.txt K-RRT drawFigure faildetection
+	rm *.o *.txt K-RRT drawFigure faildetection faildetection_noRecursive faildetection_validate
 

@@ -101,6 +101,8 @@ double mathCondition(int j, int R, double ploss)
             theta = pow(ploss,R);
             arrayThetha[i]= theta ;
             //thethalist.push_back(theta);
+            
+            
         }
         else
         {
@@ -125,6 +127,7 @@ double mathCondition(int j, int R, double ploss)
 
     return (1-sumTheta);
 }
+
 long double calBigPRNtf(int bigN, int nAtfirstoverflow, double miu, double lambdaC)
 {
     //cout << "bigN =" <<bigN << " : nAtfirstoverflow =" << nAtfirstoverflow << endl; 
@@ -171,7 +174,7 @@ long double calBigPRNtf(int bigN, int nAtfirstoverflow, double miu, double lambd
     }
     
 
-    cout << "sumPR=" << sumPr << endl;
+    //cout << "sumPR=" << sumPr << endl;
 
     return sumPr;
 
@@ -453,20 +456,28 @@ void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R,
 	
 
 	ofstream outfile;
-    outfile.open("falseFailure.txt",ios_base::app);
+    outfile.open("falseFailure_validate.txt",ios_base::app);
     outfile << content <<"\n"; 
     outfile.close();
     
 }
 int main(int argc, char *argv[]) {
     
-    int N_sim = 100000;
+    
 
-    double tf = 27000;
-    double tc = 30;
-    double ploss = 0.01;
-    int round = 3;
-    int attempt = 1;
+    if (argc != 7) {
+		cerr << "Usage: " << argv[0] << " <SIM_ROUND> " <<" <Tf>" << " <Tc> " << " <P_LOSS> "  	<< " <R> " << " <L> " << endl;
+		return 1;
+	}
+
+    int N_sim = atof(argv[1]);
+    double tf = atof(argv[2]);
+    double tc = atof(argv[3]);
+    double ploss = atof(argv[4]);
+    int round = atoi(argv[5]);
+    int attempt = atoi(argv[6]);
+
+
     cout << " K-Echo with False Failure detection " <<endl;
     cout << "============ Settings ==========" << endl;
     cout << "tf =" << tf <<endl;
