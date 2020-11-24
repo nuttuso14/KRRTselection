@@ -79,13 +79,13 @@ class RandomNumber{
 
 };
 
-double mathCondition(int j, int R, double ploss)
+long double mathCondition(int j, int R, double ploss)
 {
 
-    double sumTheta = 0;
-    double theta = 0;
-    double arrayThetha[j];
-    vector<double> thethalist;
+    long double sumTheta = 0;
+    long double theta = 0;
+    //double arrayThetha[j];
+    vector<long double> thethalist;
 
     for(int i=0;i<=j;i++)
     {
@@ -93,39 +93,41 @@ double mathCondition(int j, int R, double ploss)
         if(i<R)
         {
             theta = 0;
-            arrayThetha[i]= theta ;
-            //thethalist.push_back(theta);
+            //arrayThetha[i]= theta ;
+            thethalist.push_back(theta);
         }
         else if(i==R)
         {
-            theta = pow(ploss,R);
-            arrayThetha[i]= theta ;
-            //thethalist.push_back(theta);
+            theta = pow((long double)ploss,(long double)R);
+            //arrayThetha[i]= theta ;
+            thethalist.push_back(theta);
             
             
         }
         else
         {
             //cout << j << endl;
-            double sumsubtheta = 0;
+            long double sumsubtheta = 0;
            // cout << "===========call recursive" << endl;
             for(int x=0;x<=i-R-1;x++)
             {
                // cout << x <<endl;
-                sumsubtheta += arrayThetha[x];
-                //sumsubtheta += thethalist[x];
+                //sumsubtheta += arrayThetha[x];
+                sumsubtheta += thethalist[x];
 
             }
            // cout << "===========end recursive" << endl;
-            theta = (1 - sumsubtheta)*(1-ploss)*pow(ploss,R);
-            arrayThetha[i] = theta;
-            //thethalist.push_back(theta);
+            theta = (1 - sumsubtheta)*(1-ploss)*pow((long double)ploss,(long double)R);
+            //arrayThetha[i] = theta;
+            thethalist.push_back(theta);
+            //cout << "theta in loop 3=" << theta <<endl;
         }
+        //cout << "theta =" << theta <<endl;
         sumTheta+=theta;
     }
     
 
-    return (1-sumTheta);
+    return 1-sumTheta;
 }
 
 long double calBigPRNtf(int bigN, int nAtfirstoverflow, double miu, double lambdaC)
@@ -155,7 +157,7 @@ long double calBigPRNtf(int bigN, int nAtfirstoverflow, double miu, double lambd
 
         }while(bigN>0);
     }
-    long double sumPr = 1;
+    long double sumPr = miu;
     long double PrNgUp = 0;
     long double PrNgdown = 0;
     long double fraction = -1;
@@ -164,17 +166,28 @@ long double calBigPRNtf(int bigN, int nAtfirstoverflow, double miu, double lambd
     {
         //cout << "n in overlow =" << n << "Value :" << nMultiple[n] <<endl;
         int k = nMultiple[n];
-        PrNgUp = ((long double)miu*pow((long double)lambdaC,(long double)k));
-        PrNgdown = pow(((long double)lambdaC+(long double)miu),(long double)(k+1));
-        fraction = PrNgUp/PrNgdown;
-        //cout << "PrNgUp=" << PrNgUp << endl;
-        //cout << "PrNgdown=" << PrNgdown << endl;
-
+        //cout << "n in overlow =" << n << "k :" << nMultiple[n] <<endl;
+        //PrNgUp = ((long double)miu*pow((long double)lambdaC,(long double)k));
+        if(n==0)
+        {
+            PrNgUp = (pow((long double)lambdaC,(long double)k));
+            PrNgdown = pow(((long double)(lambdaC+miu)),(long double)(k+1));
+        }
+        else
+        {
+            PrNgUp = (pow((long double)lambdaC,(long double)k));
+            PrNgdown = pow(((long double)(lambdaC+miu)),(long double)(k));
+        }
+       
+        fraction = (PrNgUp)/PrNgdown;
+       // cout << "PrNgUp in function =" << PrNgUp << endl;
+        //cout << "PrNgdown in function =" << PrNgdown << endl;
+       // cout << "fraction in function =" << fraction << endl;
         sumPr *= fraction;
     }
-    
+    //sumPr = miu*sumPr;
 
-    //cout << "sumPR=" << sumPr << endl;
+    //cout << "sumPR in fraction=" << sumPr << endl;
 
     return sumPr;
 
@@ -182,6 +195,7 @@ long double calBigPRNtf(int bigN, int nAtfirstoverflow, double miu, double lambd
 
 double MathCaluation(int N_packet, double miu, double lambdaC, double ploss, int R)
 {
+    cout << "mu=" << miu << " lambdaC=" << lambdaC <<endl;
     long double sumbeta = 0;
     long double beta = 0;
     long double thethabar =0;
@@ -195,11 +209,14 @@ double MathCaluation(int N_packet, double miu, double lambdaC, double ploss, int
     for(int n=0;n<=N_packet;n++)
     {   
         cout << "calucate at Packet :" << n << "/" << N_packet << endl;
+        
         thethabar =  mathCondition(n,R,ploss);
-        PrNgUp = ((long double)miu*pow((long double)lambdaC,(long double)n));
-        PrNgdown = pow(((long double)lambdaC+(long double)miu),(long double)(n+1));
+        //cout << "new thetha =" << thethabar <<endl;
+        PrNgUp = (miu*pow((long double)lambdaC,(long double)n));
+        PrNgdown = pow(((long double)(lambdaC+miu)),(long double)(n+1));
         if(PrNgUp==(long double)0 || PrNgdown==(long double)0) 
         {
+           // cout << "user this !" << endl;
             if(nOverflow==0)
             {
                 nAtfirstoverflow = n;
@@ -225,8 +242,9 @@ double MathCaluation(int N_packet, double miu, double lambdaC, double ploss, int
             break;
         }*/
         //fraction = (isnan(fraction))?0:fraction;
-        //double eee = thethabar*fraction;
-        sumbeta +=(thethabar*fraction);
+        long double eee = (thethabar)*fraction;
+        sumbeta +=(eee);
+        
 
         //if(fraction<(long double)0.0000000000000000001)
         /*if(fraction<(long double)0.000000000001)
@@ -236,10 +254,16 @@ double MathCaluation(int N_packet, double miu, double lambdaC, double ploss, int
             break;
         }*/
 
+        //cout << "Fraction=" << fraction << endl;
         //cout << "thethabar*fraction =" << eee << endl;
         //cout << "sum_beta=" << sumbeta <<endl;
-        //cout << "after fraction=" << fraction << endl;
+        if(eee<(double)0.0000000001)
+        {
+            break;    
+        }
+        
     }
+    
     beta = 1 - sumbeta;
     return beta;
 }
@@ -258,10 +282,11 @@ void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R,
     double NfailureDetect =0;
     double NtrueDetect =0;
     int faildetect = 0;
+    cout << "Start Simulation ====================" <<endl;
     for(int i =0; i<n_sim;i++)
     {
         //cout << r1.getRandomExpo() <<endl;
-        cout << "Simulation at round " << (i+1) << endl; 
+        //cout << "Simulation at round " << (i+1) << endl; 
         countR=0;
         faildetect = 0;
         //tf = r1.getRandomExpo();
@@ -427,6 +452,8 @@ void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R,
     double casethe2 = (double)thethatrack[1]/(double)n_sim; 
     double casethe3 = (double)thethatrack[2]/(double)n_sim; 
 
+    cout << "End Simulation ====================" <<endl;
+
     cout << "=============== Simulation ================" << endl;
     //long double xx = 1.18973e+307;
     //cout << "long double xx :" << xx << endl; 
@@ -443,7 +470,7 @@ void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R,
     // calculate beta
     int Npacket = avgPacket;
     double beta = 0;
-    beta = MathCaluation(Npacket*20,r1.getRate(),r2.getRate(),ploss,R);
+    beta = MathCaluation(maxN,r1.getRate(),r2.getRate(),ploss,R);
     double pTrueMath = 1-beta;
     cout << "P[True Failure detected] =" << 1-beta <<endl;
     cout << "P[False failure detected] = " << beta <<endl; 
@@ -461,6 +488,7 @@ void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R,
     outfile.close();
     
 }
+
 int main(int argc, char *argv[]) {
     
     
