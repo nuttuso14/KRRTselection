@@ -39,7 +39,7 @@ hold on
 
 xlim([0,4]);
 
-xlabel('t')
+xlabel('t (seconds)')
 ylabel('P[t_l<t]', 'FontSize', 18)
 %legend('\lambda_i=0.1\lambda_1','\lambda_i=0.5\lambda_1','\lambda_i=0.9\lambda_1')
 legend('M=5 K=3 sim','M=5 K=3 ana','M=5 K=5 sim','M=5 K=5 ana','M=5 K=7 sim','M=5 K=7 ana')

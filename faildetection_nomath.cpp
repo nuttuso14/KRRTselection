@@ -257,7 +257,7 @@ double MathCaluation(int N_packet, double miu, double lambdaC, double ploss, int
         //cout << "Fraction=" << fraction << endl;
         //cout << "thethabar*fraction =" << eee << endl;
         //cout << "sum_beta=" << sumbeta <<endl;
-        if(eee<(double)0.000000001)
+        if(eee<(double)0.000001)
         {
             break;    
         }
@@ -470,7 +470,7 @@ void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R,
     // calculate beta
     int Npacket = avgPacket;
     double beta = 0;
-    beta = MathCaluation(maxN,r1.getRate(),r2.getRate(),ploss,R);
+   // beta = MathCaluation(maxN,r1.getRate(),r2.getRate(),ploss,R);
     double pTrueMath = 1-beta;
     cout << "P[True Failure detected] =" << 1-beta <<endl;
     cout << "P[False failure detected] = " << beta <<endl; 
@@ -483,7 +483,7 @@ void sendingPacket(int n_sim, double meanTf, double meanTc, double ploss, int R,
 	
 
 	ofstream outfile;
-    outfile.open("falseFailure_validate.txt",ios_base::app);
+    outfile.open("falseFailure_nomath.txt",ios_base::app);
     outfile << content <<"\n"; 
     outfile.close();
     
